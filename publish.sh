@@ -1,5 +1,5 @@
 #!/bin/bash
-# Publish Wortschatz to GitHub Pages using the GitHub CLI (gh).
+# Publish Wortfang to GitHub Pages using the GitHub CLI (gh).
 #   cd ~/Claude/Wortschatz && bash publish.sh            # repo name: wortschatz
 #   bash publish.sh my-other-name                         # custom repo name
 set -euo pipefail
@@ -26,14 +26,14 @@ echo "→ Publishing as $OWNER/$REPO"
 if [ ! -d .git ]; then
   git init -q -b main
 fi
-git add index.html manifest.webmanifest sw.js README.md .gitignore icons dict tools/build_dict.py publish.sh
-git -c user.name="$OWNER" -c user.email="$OWNER@users.noreply.github.com" commit -q -m "Publish Wortschatz" || echo "(nothing new to commit)"
+git add index.html manifest.webmanifest sw.js README.md LICENSE .gitignore icons dict tools/build_dict.py publish.sh
+git -c user.name="$OWNER" -c user.email="$OWNER@users.noreply.github.com" commit -q -m "Update Wortfang" || echo "(nothing new to commit)"
 
 if gh repo view "$OWNER/$REPO" >/dev/null 2>&1; then
   git remote get-url origin >/dev/null 2>&1 || git remote add origin "https://github.com/$OWNER/$REPO.git"
   git push -u origin main
 else
-  gh repo create "$REPO" --public --description "Wortschatz — personal German vocabulary app" --source . --remote origin --push
+  gh repo create "$REPO" --public --description "Wortfang — catch German words as you meet them (offline PWA)" --source . --remote origin --push
 fi
 
 # Turn on GitHub Pages (main branch, root folder).

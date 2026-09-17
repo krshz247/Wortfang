@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Wortschatz</title>
-<meta name="description" content="Personal German vocabulary tracker — nouns and verbs with full grammar.">
+<title>Wortfang</title>
+<meta name="description" content="Wortfang — catch German words as you meet them: articles, plurals and full conjugations, offline.">
 <meta name="theme-color" content="#f7f4ee" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#141312" media="(prefers-color-scheme: dark)">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Wortschatz">
+<meta name="apple-mobile-web-app-title" content="Wortfang">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
@@ -247,6 +247,23 @@ main { max-width: 720px; margin: 0 auto; padding: 4px 16px calc(110px + env(safe
 .inline { display: flex; gap: 8px; }
 .inline input { flex: 1; min-width: 0; }
 
+/* ---------- install hint ---------- */
+.install {
+  max-width: 720px; margin: 4px auto 6px; padding: 0 16px;
+}
+.install-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 13px 14px; box-shadow: var(--shadow); font-size: 14.5px;
+}
+.install-card h3 { margin: 0 0 6px; font: 600 15px/1.25 var(--sans); }
+.install-card p { margin: 6px 0 0; }
+.install-card .note { color: var(--muted); font-size: 13px; }
+.install-card .row { display: flex; gap: 8px; margin-top: 10px; }
+.install-card .row .btn { padding: 9px 12px; }
+.ios-share { display: inline-block; width: 17px; height: 17px; vertical-align: -3px; color: #0a84ff; }
+.empty.welcome { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 16px; color: var(--ink); line-height: 1.5; }
+.empty.welcome .small { display: block; color: var(--muted); font-size: 13.5px; margin-top: 8px; }
+
 .toast {
   position: fixed; left: 50%; transform: translateX(-50%); z-index: 40;
   bottom: calc(84px + env(safe-area-inset-bottom));
@@ -259,13 +276,15 @@ main { max-width: 720px; margin: 0 auto; padding: 4px 16px calc(110px + env(safe
 
 <header class="top">
   <div class="brand">
-    <h1>Wortschatz</h1>
+    <h1>Wortfang</h1>
     <div class="sub" id="subline">Loading…</div>
   </div>
   <button class="icon-btn" id="btnSettings" aria-label="Settings">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
   </button>
 </header>
+
+<div class="install" id="installBanner" hidden></div>
 
 <div class="controls">
   <div class="seg" role="tablist">
@@ -328,27 +347,9 @@ const uuid = () => (crypto.randomUUID ? crypto.randomUUID() :
   }));
 const emptyForms = () => Object.fromEntries(PERSONS.map(p => [p, ""]));
 
-/* Seed: the prototype's 5 entries, migrated to schema v2.
-   Changes vs. prototype: stable ids, plural split from its note, meaning split from note,
-   perfektAux as a list, separable/reflexive flags, and a corrected Wasser plural note. */
-const SEED = [
-  { type: "noun", article: "der", word: "Apfel", plural: "Äpfel", pluralNote: "", meaning: "apple", note: "",
-    example: "Ich esse einen Apfel.", exampleEn: "I eat an apple." },
-  { type: "noun", article: "der", word: "Arztbericht", plural: "Arztberichte", pluralNote: "", meaning: "medical report",
-    note: "Related: der Befund / Befundbericht = (medical) findings; der Arztbrief = letter from one doctor to another.",
-    example: "Der Arzt hat einen ausführlichen Arztbericht geschrieben.", exampleEn: "The doctor wrote a detailed medical report." },
-  { type: "noun", article: "der", word: "Bericht", plural: "Berichte", pluralNote: "", meaning: "report", note: "",
-    example: "Er hat einen Bericht über das Projekt geschrieben.", exampleEn: "He wrote a report about the project." },
-  { type: "noun", article: "das", word: "Wasser", plural: null,
-    pluralNote: "Usually uncountable. Plural „Wässer“ for kinds of water (Mineralwässer, Abwässer); „Wasser“ as plural for bodies of water.",
-    meaning: "water", note: "",
-    example: "Ich trinke ein Glas Wasser.", exampleEn: "I drink a glass of water." },
-  { type: "verb", infinitive: "wandern", meaning: "to hike", note: "Also: to wander, to ramble.",
-    praesens: { ich: "wandere", du: "wanderst", er: "wandert", wir: "wandern", ihr: "wandert", sie: "wandern" },
-    praeteritum: { ich: "wanderte", du: "wandertest", er: "wanderte", wir: "wanderten", ihr: "wandertet", sie: "wanderten" },
-    perfektAux: ["sein"], partizip: "gewandert", separable: false, reflexive: false,
-    example: "Wir sind am Wochenende gewandert.", exampleEn: "We went hiking over the weekend." },
-];
+// Storage names still say "wortschatz" on purpose: renaming them would hide existing users' saved words.
+// Claude lookup is built in but switched off for now (set to true to show the key field and "Ask Claude").
+const CLAUDE_ENABLED = false;
 
 /* =========================================================
    Storage — IndexedDB (entries) + localStorage (settings)
@@ -500,11 +501,8 @@ function fmtDate(iso) {
    List rendering
    ========================================================= */
 async function load() {
-  if (!(await DB.getMeta("seeded"))) {
-    const t = nowISO();
-    await DB.putMany(SEED.map(s => normalize({ ...s, source: "seed", createdAt: t, updatedAt: t }, { keepMeta: false })));
-    await DB.setMeta("seeded", true);
-  }
+  // New users start with an empty list (earlier versions pre-filled a few sample words).
+  if (!(await DB.getMeta("seeded"))) await DB.setMeta("seeded", true);
   state.entries = await DB.all();
   render();
 }
@@ -532,6 +530,14 @@ function render() {
     : (a, b) => collator.compare(headOf(a).replace(/^sich\s+/i, ""), headOf(b).replace(/^sich\s+/i, "")));
 
   const el = $("#list");
+  if (!state.entries.length && !q) {
+    el.innerHTML = `<div class="empty welcome">
+      <strong>Willkommen bei Wortfang</strong>
+      Catch German words as you meet them. Tap <b>Add word</b>, type a German or English word and save it —
+      with its article and plural, or the full conjugation for verbs.
+      <span class="small">Everything stays on this phone and works offline.</span></div>`;
+    return;
+  }
   if (!list.length) {
     el.innerHTML = q
       ? `<div class="empty"><strong>No match</strong>Nothing for “${esc(state.q)}”. Tap <b>Add word</b> to look it up.</div>`
@@ -1033,7 +1039,7 @@ const uniqArr = a => [...new Set(a)];
 
 function openAdd(prefill = "") {
   const hint = Settings.get("hint", "auto");
-  const hasKey = !!Settings.get("apiKey", "");
+  const hasKey = CLAUDE_ENABLED && !!Settings.get("apiKey", "");
   openSheet("Add word", `
     <div class="field">
       <label for="askInput">German or English word</label>
@@ -1215,6 +1221,10 @@ function openSettings() {
       <p id="s_dict">Checking…</p>
     </div>
     <div class="setting-block">
+      <h3>Install on your phone</h3>
+      <div id="s_install"></div>
+    </div>
+    ${CLAUDE_ENABLED ? `    <div class="setting-block">
       <h3>Claude lookup <span style="font-weight:400;color:var(--muted)">(optional)</span></h3>
       <p>Not needed — the offline dictionary covers lookups. With a key, “Ask Claude” appears for tricky words and example sentences. Stored on this device and sent only to api.anthropic.com. Create one at platform.claude.com → Settings → API keys (billed separately from a Claude subscription).</p>
       <div class="field inline">
@@ -1228,7 +1238,7 @@ function openSettings() {
         </select>
       </div>
       <div class="actions"><button class="btn primary" data-act="saveKey">Save</button>${key ? `<button class="btn danger" data-act="clearKey">Remove key</button>` : ""}</div>
-    </div>
+    </div>` : ""}
     <div class="setting-block">
       <h3>Backup</h3>
       <p>Your words live only on this device. Export a backup now and then — it's also how you'll move them to a native app later.${lastBackup ? ` Last export: ${esc(fmtDate(lastBackup))}.` : " No export yet."}</p>
@@ -1243,8 +1253,9 @@ function openSettings() {
       <h3>Storage</h3>
       <p id="s_storage">Checking…</p>
     </div>
-    <div class="meta">Wortschatz · data schema v${SCHEMA_VERSION}</div>`, body => {
+    <div class="meta">Wortfang · data schema v${SCHEMA_VERSION} · app code MIT License · dictionary data CC BY-SA 4.0 (Wiktionary)</div>`, body => {
     const msg = body.querySelector("#s_msg");
+    body.querySelector("#s_install").innerHTML = Install.settingsHTML();
     Dict.load().then(() => {
       const el = body.querySelector("#s_dict"); if (!el) return;
       if (Dict.state === "ready") {
@@ -1263,8 +1274,6 @@ function openSettings() {
           ? " Marked as persistent — the system shouldn't clear it."
           : " Not marked persistent yet; keep backups.";
       } catch {}
-      if (!matchMedia("(display-mode: standalone)").matches && !navigator.standalone)
-        t += " Tip: in Safari, tap Share → Add to Home Screen and use it from there.";
       const el = body.querySelector("#s_storage"); if (el) el.textContent = t;
     })();
     body.addEventListener("click", async ev => {
@@ -1291,13 +1300,13 @@ function openSettings() {
 }
 
 async function exportJSON(msgEl) {
-  const payload = { app: "wortschatz", schemaVersion: SCHEMA_VERSION, exportedAt: nowISO(), entries: state.entries };
-  const name = `wortschatz-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  const payload = { app: "wortfang", schemaVersion: SCHEMA_VERSION, exportedAt: nowISO(), entries: state.entries };
+  const name = `wortfang-backup-${new Date().toISOString().slice(0, 10)}.json`;
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
   try {
     const file = new File([blob], name, { type: "application/json" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: "Wortschatz backup" });
+      await navigator.share({ files: [file], title: "Wortfang backup" });
     } else {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob); a.download = name;
@@ -1341,6 +1350,88 @@ async function importJSON(text) {
 }
 
 /* =========================================================
+   Install hints (Add to Home Screen)
+   ========================================================= */
+const SHARE_ICON = `<svg class="ios-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Share"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg>`;
+const Install = {
+  deferred: null, // Android/desktop Chrome install prompt
+  standalone() {
+    try { return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; } catch { return false; }
+  },
+  platform() {
+    const ua = navigator.userAgent || "";
+    const iOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if (iOS) {
+      if (/FBAN|FBAV|FB_IAB|Instagram|Line\/|Snapchat|musical_ly|TikTok|LinkedInApp|GSA\//.test(ua)) return "ios-inapp";
+      if (/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua)) return "ios-other";
+      return "ios-safari";
+    }
+    if (/Android/.test(ua)) return "android";
+    return "desktop";
+  },
+  // Steps for the current device; `compact` = banner wording.
+  html(compact) {
+    const p = this.platform();
+    // On iPhone the Home Screen app has its own storage, separate from Safari (Android shares it).
+    const keep = p.startsWith("ios") ? `<p class="note">Install first, then add your words — words saved in a Safari tab don't carry over to the Home Screen app (Settings → Export/Import can move them).</p>` : "";
+    if (this.deferred) {
+      return `<p>Install Wortfang as an app — it opens full-screen and works offline.</p>
+        <div class="row"><button class="btn primary" data-install="go">Install app</button>${compact ? `<button class="btn" data-install="later">Not now</button>` : ""}</div>${keep}`;
+    }
+    if (p === "ios-safari") {
+      return `<p>Tap ${SHARE_ICON} <b>Share</b> in Safari's toolbar, scroll down and choose <b>Add to Home Screen</b>, then <b>Add</b>. Open Wortfang from your Home Screen.</p>
+        <p class="note">No “Add to Home Screen”? You're probably in a preview inside another app (e.g. WhatsApp) — tap the compass / “Open in Safari” button first.</p>
+        ${keep}${compact ? `<div class="row"><button class="btn" data-install="later">Got it</button></div>` : ""}`;
+    }
+    if (p === "ios-other") {
+      return `<p>Tap ${SHARE_ICON} <b>Share</b> (in the address bar or menu) and choose <b>Add to Home Screen</b>. If you don't see it, open this page in <b>Safari</b> and do it there.</p>
+        ${keep}${compact ? `<div class="row"><button class="btn" data-install="later">Got it</button></div>` : ""}`;
+    }
+    if (p === "ios-inapp") {
+      return `<p>You're in an app's built-in browser, which can't install apps. Tap <b>•••</b> and choose <b>Open in Safari</b> (or copy the link into Safari), then Share ${SHARE_ICON} → <b>Add to Home Screen</b>.</p>
+        ${compact ? `<div class="row"><button class="btn" data-install="later">Got it</button></div>` : ""}`;
+    }
+    if (p === "android") {
+      return `<p>Open your browser's menu <b>⋮</b> and choose <b>Install app</b> or <b>Add to Home screen</b>. Chrome works best.</p>
+        ${keep}${compact ? `<div class="row"><button class="btn" data-install="later">Got it</button></div>` : ""}`;
+    }
+    return `<p>Open this page on your phone — iPhone: Safari → Share → <b>Add to Home Screen</b>; Android: Chrome menu ⋮ → <b>Install app</b>.${this.deferred ? "" : " In Chrome or Edge on a computer, use the install icon in the address bar."}</p>`;
+  },
+  dismissedRecently() {
+    const t = Number(Settings.get("installHintDismissed", 0));
+    return t && Date.now() - t < 7 * 24 * 3600 * 1000;
+  },
+  renderBanner() {
+    const el = $("#installBanner");
+    const show = !this.standalone() && !this.dismissedRecently() && (this.platform() !== "desktop" || this.deferred);
+    el.hidden = !show;
+    if (show) el.innerHTML = `<div class="install-card"><h3>Put Wortfang on your Home Screen</h3>${this.html(true)}</div>`;
+  },
+  settingsHTML() {
+    if (this.standalone()) return `<p>Installed ✓ — you're using the Home Screen app.</p>`;
+    return this.html(false);
+  },
+  async prompt() {
+    if (!this.deferred) return;
+    const ev = this.deferred;
+    this.deferred = null;
+    try { ev.prompt(); await ev.userChoice; } catch {}
+    this.renderBanner();
+  },
+};
+window.addEventListener("beforeinstallprompt", ev => {
+  ev.preventDefault();
+  Install.deferred = ev;
+  Install.renderBanner();
+});
+window.addEventListener("appinstalled", () => { Install.deferred = null; Install.renderBanner(); toast("Installed — open Wortfang from your Home Screen"); });
+document.addEventListener("click", ev => {
+  const b = ev.target.closest("[data-install]"); if (!b) return;
+  if (b.dataset.install === "go") Install.prompt();
+  if (b.dataset.install === "later") { Settings.set("installHintDismissed", String(Date.now())); Install.renderBanner(); }
+});
+
+/* =========================================================
    Wiring
    ========================================================= */
 document.querySelector(".seg").addEventListener("click", ev => {
@@ -1360,6 +1451,7 @@ $("#sheetClose").addEventListener("click", closeSheet);
 $("#backdrop").addEventListener("click", ev => { if (ev.target.id === "backdrop") closeSheet(); });
 document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("#backdrop").hidden) closeSheet(); });
 
+Install.renderBanner();
 load().catch(err => {
   $("#list").innerHTML = `<div class="empty"><strong>Storage unavailable</strong>${esc(err.message || String(err))}<br>Private Browsing blocks saving — open the app normally.</div>`;
 });

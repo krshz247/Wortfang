@@ -1,6 +1,6 @@
 // Wortschatz service worker — offline app shell + offline dictionary.
 // Bump VERSION whenever you change index.html (or other shell files) so phones pick up the update.
-const VERSION = "wortschatz-v3";
+const VERSION = "wortfang-v4";
 const DICT_CACHE = "wortschatz-dict";
 const FONT_CACHE = "wortschatz-fonts";
 const SHELL = [
