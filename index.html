@@ -1,0 +1,1372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wortschatz</title>
+<meta name="description" content="Personal German vocabulary tracker — nouns and verbs with full grammar.">
+<meta name="theme-color" content="#f7f4ee" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141312" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Wortschatz">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f4ee;
+  --surface: #ffffff;
+  --surface-2: #f0ece4;
+  --ink: #1c1917;
+  --muted: #6f6861;
+  --line: #e4ded3;
+  --accent: #1c1917;
+  --accent-ink: #f7f4ee;
+  --danger: #b42318;
+  --der: #1d5fd1;  --der-bg: #e3ecfb;
+  --die: #b8235a;  --die-bg: #f9e3ec;
+  --das: #1b7a3f;  --das-bg: #e0f1e6;
+  --shadow: 0 1px 2px rgba(28,25,23,.06), 0 2px 8px rgba(28,25,23,.04);
+  --radius: 14px;
+  --serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --sans: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141312;
+    --surface: #1e1c1a;
+    --surface-2: #272421;
+    --ink: #f3efe8;
+    --muted: #a39c94;
+    --line: #34302b;
+    --accent: #f3efe8;
+    --accent-ink: #141312;
+    --danger: #f97066;
+    --der: #7aa7f5;  --der-bg: #1b2a44;
+    --die: #f07aa6;  --die-bg: #3d1b29;
+    --das: #6fcf93;  --das-bg: #173323;
+    --shadow: none;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.45 var(--sans);
+  padding: env(safe-area-inset-top) 0 0;
+  min-height: 100vh; min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+[hidden] { display: none !important; }
+
+/* ---------- header & controls ---------- */
+.top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px 6px; max-width: 720px; margin: 0 auto;
+}
+.brand h1 { font: 650 30px/1.1 var(--serif); margin: 0; letter-spacing: -.01em; }
+.brand .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+.icon-btn {
+  width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line);
+  background: var(--surface); display: grid; place-items: center; padding: 0;
+}
+.icon-btn svg { width: 20px; height: 20px; }
+.controls {
+  position: sticky; top: 0; z-index: 5; background: var(--bg);
+  padding: 8px 16px 10px; max-width: 720px; margin: 0 auto;
+}
+.seg {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px;
+  background: var(--surface-2); border-radius: 12px;
+}
+.seg button {
+  border: 0; background: transparent; padding: 9px 8px; border-radius: 9px;
+  font-weight: 500; color: var(--muted);
+}
+.seg button[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.seg .n { font-variant-numeric: tabular-nums; opacity: .7; font-weight: 400; margin-left: 4px; }
+.searchrow { display: flex; gap: 8px; margin-top: 10px; }
+.searchrow input {
+  flex: 1; min-width: 0; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--surface); font-size: 16px;
+}
+.searchrow select {
+  padding: 10px 8px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--surface); font-size: 15px;
+}
+
+/* ---------- list ---------- */
+main { max-width: 720px; margin: 0 auto; padding: 4px 16px calc(110px + env(safe-area-inset-bottom)); }
+.card {
+  display: block; width: 100%; text-align: left; border: 1px solid var(--line);
+  background: var(--surface); border-radius: var(--radius); padding: 13px 14px;
+  margin-bottom: 8px; box-shadow: var(--shadow);
+}
+.card:active { transform: scale(.99); }
+.card .head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.word { font: 500 21px/1.2 var(--serif); }
+.pill {
+  font: 600 12px/1 var(--sans); letter-spacing: .02em; padding: 4px 7px;
+  border-radius: 6px; text-transform: lowercase; align-self: center;
+}
+.pill.der { color: var(--der); background: var(--der-bg); }
+.pill.die { color: var(--die); background: var(--die-bg); }
+.pill.das { color: var(--das); background: var(--das-bg); }
+.art-der { color: var(--der); } .art-die { color: var(--die); } .art-das { color: var(--das); }
+.plural { color: var(--muted); font-size: 14px; }
+.meaning { margin-top: 3px; font-size: 15px; }
+.forms { margin-top: 4px; color: var(--muted); font-size: 13.5px; }
+.empty { text-align: center; color: var(--muted); padding: 48px 12px; }
+.empty strong { display: block; color: var(--ink); font: 500 20px/1.3 var(--serif); margin-bottom: 6px; }
+
+.fab {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 6;
+  border: 0; border-radius: 999px; padding: 14px 22px;
+  background: var(--accent); color: var(--accent-ink); font-weight: 600;
+  box-shadow: 0 6px 20px rgba(0,0,0,.18); display: flex; align-items: center; gap: 8px;
+}
+.fab svg { width: 18px; height: 18px; }
+
+/* ---------- sheet ---------- */
+.backdrop {
+  position: fixed; inset: 0; z-index: 20; background: rgba(0,0,0,.35);
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.sheet {
+  width: 100%; max-width: 720px; max-height: calc(100dvh - env(safe-area-inset-top) - 24px);
+  background: var(--bg); border-radius: 18px 18px 0 0; display: flex; flex-direction: column;
+  animation: up .18s ease-out;
+}
+@keyframes up { from { transform: translateY(24px); opacity: .6; } to { transform: none; opacity: 1; } }
+@media (min-width: 760px) {
+  .backdrop { align-items: center; }
+  .sheet { border-radius: 18px; max-height: 88vh; }
+}
+.sheet-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 14px 16px 10px; border-bottom: 1px solid var(--line);
+}
+.sheet-head h2 { margin: 0; font: 600 18px/1.2 var(--sans); }
+.sheet-body {
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
+}
+.textbtn { border: 0; background: none; color: var(--muted); padding: 8px 4px; font-weight: 500; }
+
+/* ---------- detail ---------- */
+.headword { font: 650 34px/1.1 var(--serif); margin: 2px 0 6px; word-break: break-word; }
+.headword .art { font-weight: 500; }
+.kv { display: grid; grid-template-columns: 96px 1fr; gap: 6px 12px; margin: 12px 0; font-size: 15px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; }
+.example {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 12px 14px; margin: 12px 0;
+}
+.example .de { font: 500 17px/1.4 var(--serif); }
+.example .en { color: var(--muted); font-size: 14px; margin-top: 4px; }
+.note { font-size: 14px; color: var(--muted); border-left: 3px solid var(--line); padding: 2px 0 2px 10px; margin: 12px 0; }
+.tagrow { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 8px; }
+.tag { font-size: 12px; padding: 3px 8px; border-radius: 999px; background: var(--surface-2); color: var(--muted); }
+.conj { width: 100%; border-collapse: collapse; font-size: 14.5px; margin: 10px 0 4px; }
+.conj th, .conj td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.conj thead th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+.conj tbody th { color: var(--muted); font-weight: 500; white-space: nowrap; width: 1%; }
+.conj-wrap { overflow-x: auto; }
+.meta { color: var(--muted); font-size: 12.5px; margin-top: 16px; }
+.actions { display: flex; gap: 8px; margin-top: 18px; }
+.btn {
+  flex: 1; border-radius: 12px; padding: 12px 14px; font-weight: 600;
+  border: 1px solid var(--line); background: var(--surface);
+}
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.danger { color: var(--danger); }
+.btn.danger.armed { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn:disabled { opacity: .5; }
+
+/* ---------- forms ---------- */
+.field { margin-bottom: 14px; }
+.field label, .lbl { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
+.field input[type=text], .field input[type=password], .field input:not([type]), .field textarea, .field select {
+  width: 100%; padding: 11px 12px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--surface); font-size: 16px;
+}
+.field textarea { resize: vertical; min-height: 64px; }
+.field .hint { font-size: 12.5px; color: var(--muted); margin-top: 5px; }
+.choice { display: flex; gap: 6px; flex-wrap: wrap; }
+.choice label {
+  display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 9px 14px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 15px; font-weight: 500;
+}
+.choice input { accent-color: var(--ink); margin: 0; }
+.choice label:has(input:checked) { border-color: var(--ink); }
+.choice label.der:has(input:checked) { color: var(--der); border-color: var(--der); background: var(--der-bg); }
+.choice label.die:has(input:checked) { color: var(--die); border-color: var(--die); background: var(--die-bg); }
+.choice label.das:has(input:checked) { color: var(--das); border-color: var(--das); background: var(--das-bg); }
+.grid-forms { display: grid; grid-template-columns: auto 1fr 1fr; gap: 6px 8px; align-items: center; }
+.grid-forms .h { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.grid-forms .p { color: var(--muted); font-size: 14px; white-space: nowrap; }
+.grid-forms input { width: 100%; min-width: 0; padding: 9px 10px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); font-size: 16px; }
+.section-title { font: 500 19px/1.2 var(--serif); margin: 22px 0 10px; }
+.error { color: var(--danger); font-size: 14px; margin: 8px 0; }
+
+/* ---------- ask claude ---------- */
+.tabs2 { margin-bottom: 16px; }
+.askrow { display: flex; gap: 8px; }
+.askrow input { flex: 1; min-width: 0; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font-size: 17px; }
+.askrow .btn { flex: 0 0 auto; }
+.status { display: flex; align-items: center; gap: 10px; color: var(--muted); margin: 16px 0; }
+.spinner { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); border-top-color: var(--ink); animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.flag {
+  background: var(--surface-2); border-radius: 12px; padding: 11px 13px; font-size: 14.5px; margin: 14px 0;
+}
+.cand { border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); padding: 14px; margin: 10px 0; }
+.choice.senses { flex-direction: column; }
+.choice.senses label { align-items: flex-start; font-weight: 400; font-size: 14.5px; line-height: 1.35; }
+.choice.senses input { margin-top: 3px; }
+.card .tag { align-self: center; }
+.cand .why { font-size: 13.5px; color: var(--muted); margin-top: 4px; }
+.cand .actions { margin-top: 12px; }
+.dup { font-size: 13px; color: var(--danger); margin-top: 6px; }
+
+/* ---------- settings ---------- */
+.setting-block { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; }
+.setting-block h3 { margin: 0 0 10px; font: 600 15px/1.2 var(--sans); }
+.setting-block p { margin: 0 0 10px; font-size: 14px; color: var(--muted); }
+.inline { display: flex; gap: 8px; }
+.inline input { flex: 1; min-width: 0; }
+
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 40;
+  bottom: calc(84px + env(safe-area-inset-bottom));
+  background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 10px;
+  font-size: 14px; max-width: calc(100% - 32px); box-shadow: 0 6px 20px rgba(0,0,0,.2);
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <h1>Wortschatz</h1>
+    <div class="sub" id="subline">Loading…</div>
+  </div>
+  <button class="icon-btn" id="btnSettings" aria-label="Settings">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+  </button>
+</header>
+
+<div class="controls">
+  <div class="seg" role="tablist">
+    <button role="tab" data-tab="noun" aria-selected="true">Nomen<span class="n" id="nNoun"></span></button>
+    <button role="tab" data-tab="verb" aria-selected="false">Verben<span class="n" id="nVerb"></span></button>
+  </div>
+  <div class="searchrow">
+    <input id="search" type="search" placeholder="Search German or English" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <select id="sort" aria-label="Sort">
+      <option value="az">A–Z</option>
+      <option value="new">Newest</option>
+    </select>
+  </div>
+</div>
+
+<main id="list" aria-live="polite"></main>
+
+<button class="fab" id="fab">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+  Add word
+</button>
+
+<div class="backdrop" id="backdrop" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head">
+      <h2 id="sheetTitle"></h2>
+      <button class="textbtn" id="sheetClose">Close</button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+"use strict";
+/* =========================================================
+   Constants
+   ========================================================= */
+const SCHEMA_VERSION = 2;
+const PERSONS = ["ich", "du", "er", "wir", "ihr", "sie"];
+const PERSON_LABEL = { ich: "ich", du: "du", er: "er/sie/es", wir: "wir", ihr: "ihr", sie: "sie/Sie" };
+// Perfekt is derived at display time — the two auxiliaries never change.
+const AUX = {
+  haben: { ich: "habe", du: "hast", er: "hat", wir: "haben", ihr: "habt", sie: "haben" },
+  sein:  { ich: "bin",  du: "bist", er: "ist", wir: "sind",  ihr: "seid", sie: "sind" },
+};
+const REFL = { ich: "mich", du: "dich", er: "sich", wir: "uns", ihr: "euch", sie: "sich" };
+const MODELS = [
+  { id: "claude-sonnet-5", label: "Claude Sonnet 5 — recommended" },
+  { id: "claude-haiku-4-5-20251001", label: "Claude Haiku 4.5 — cheapest, fastest" },
+  { id: "claude-opus-5", label: "Claude Opus 5 — most careful, pricier" },
+];
+const DEFAULT_MODEL = MODELS[0].id;
+
+const nowISO = () => new Date().toISOString();
+const uuid = () => (crypto.randomUUID ? crypto.randomUUID() :
+  "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0; return (c === "x" ? r : (r & 3 | 8)).toString(16);
+  }));
+const emptyForms = () => Object.fromEntries(PERSONS.map(p => [p, ""]));
+
+/* Seed: the prototype's 5 entries, migrated to schema v2.
+   Changes vs. prototype: stable ids, plural split from its note, meaning split from note,
+   perfektAux as a list, separable/reflexive flags, and a corrected Wasser plural note. */
+const SEED = [
+  { type: "noun", article: "der", word: "Apfel", plural: "Äpfel", pluralNote: "", meaning: "apple", note: "",
+    example: "Ich esse einen Apfel.", exampleEn: "I eat an apple." },
+  { type: "noun", article: "der", word: "Arztbericht", plural: "Arztberichte", pluralNote: "", meaning: "medical report",
+    note: "Related: der Befund / Befundbericht = (medical) findings; der Arztbrief = letter from one doctor to another.",
+    example: "Der Arzt hat einen ausführlichen Arztbericht geschrieben.", exampleEn: "The doctor wrote a detailed medical report." },
+  { type: "noun", article: "der", word: "Bericht", plural: "Berichte", pluralNote: "", meaning: "report", note: "",
+    example: "Er hat einen Bericht über das Projekt geschrieben.", exampleEn: "He wrote a report about the project." },
+  { type: "noun", article: "das", word: "Wasser", plural: null,
+    pluralNote: "Usually uncountable. Plural „Wässer“ for kinds of water (Mineralwässer, Abwässer); „Wasser“ as plural for bodies of water.",
+    meaning: "water", note: "",
+    example: "Ich trinke ein Glas Wasser.", exampleEn: "I drink a glass of water." },
+  { type: "verb", infinitive: "wandern", meaning: "to hike", note: "Also: to wander, to ramble.",
+    praesens: { ich: "wandere", du: "wanderst", er: "wandert", wir: "wandern", ihr: "wandert", sie: "wandern" },
+    praeteritum: { ich: "wanderte", du: "wandertest", er: "wanderte", wir: "wanderten", ihr: "wandertet", sie: "wanderten" },
+    perfektAux: ["sein"], partizip: "gewandert", separable: false, reflexive: false,
+    example: "Wir sind am Wochenende gewandert.", exampleEn: "We went hiking over the weekend." },
+];
+
+/* =========================================================
+   Storage — IndexedDB (entries) + localStorage (settings)
+   ========================================================= */
+const DB = (() => {
+  let dbp;
+  function open() {
+    if (dbp) return dbp;
+    dbp = new Promise((resolve, reject) => {
+      const req = indexedDB.open("wortschatz", 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains("entries")) db.createObjectStore("entries", { keyPath: "id" });
+        if (!db.objectStoreNames.contains("meta")) db.createObjectStore("meta");
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    return dbp;
+  }
+  async function tx(store, mode, fn) {
+    const db = await open();
+    return new Promise((resolve, reject) => {
+      const t = db.transaction(store, mode);
+      const s = t.objectStore(store);
+      let result;
+      Promise.resolve(fn(s)).then(r => { result = r; });
+      t.oncomplete = () => resolve(result);
+      t.onerror = () => reject(t.error);
+      t.onabort = () => reject(t.error);
+    });
+  }
+  const reqP = r => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+  return {
+    all: () => tx("entries", "readonly", s => reqP(s.getAll())),
+    put: e => tx("entries", "readwrite", s => { s.put(e); }),
+    putMany: list => tx("entries", "readwrite", s => { list.forEach(e => s.put(e)); }),
+    del: id => tx("entries", "readwrite", s => { s.delete(id); }),
+    getMeta: k => tx("meta", "readonly", s => reqP(s.get(k))),
+    setMeta: (k, v) => tx("meta", "readwrite", s => { s.put(v, k); }),
+  };
+})();
+
+const Settings = {
+  get(k, d) { try { const v = localStorage.getItem("wz." + k); return v === null ? d : v; } catch { return d; } },
+  set(k, v) { try { if (v === null || v === "") localStorage.removeItem("wz." + k); else localStorage.setItem("wz." + k, v); } catch {} },
+};
+
+/* =========================================================
+   Normalisation / validation
+   ========================================================= */
+const str = v => (typeof v === "string" ? v.trim() : "");
+function normalize(raw, { keepMeta = true } = {}) {
+  const t = raw.type ? (raw.type === "verb" ? "verb" : "noun") : (raw.infinitive ? "verb" : "noun");
+  const base = {
+    id: keepMeta && raw.id ? String(raw.id) : uuid(),
+    type: t,
+    meaning: str(raw.meaning),
+    note: str(raw.note),
+    example: str(raw.example),
+    exampleEn: str(raw.exampleEn),
+    source: raw.source || "manual",
+    createdAt: keepMeta && raw.createdAt ? raw.createdAt : nowISO(),
+    updatedAt: keepMeta && raw.updatedAt ? raw.updatedAt : nowISO(),
+  };
+  if (t === "noun") {
+    const art = ["der", "die", "das"].includes(raw.article) ? raw.article : "";
+    const plural = raw.plural == null || str(raw.plural) === "" ? null : str(raw.plural).replace(/^die\s+/i, "");
+    return { ...base, article: art, word: capitalize(str(raw.word).replace(/^(der|die|das)\s+/i, "")),
+      plural, pluralNote: str(raw.pluralNote) };
+  }
+  const forms = src => Object.fromEntries(PERSONS.map(p => [p, str(src && src[p])]));
+  let aux = Array.isArray(raw.perfektAux) ? raw.perfektAux : (raw.perfektAux ? [raw.perfektAux] : []);
+  aux = ["haben", "sein"].filter(a => aux.includes(a));
+  const inf = str(raw.infinitive);
+  return { ...base, infinitive: inf,
+    praesens: forms(raw.praesens), praeteritum: forms(raw.praeteritum),
+    perfektAux: aux, partizip: str(raw.partizip),
+    separable: !!raw.separable, reflexive: raw.reflexive === undefined ? /^sich\s/i.test(inf) : !!raw.reflexive };
+}
+function capitalize(s) { return s ? s.charAt(0).toLocaleUpperCase("de-DE") + s.slice(1) : s; }
+function validate(e) {
+  const errs = [];
+  if (e.type === "noun") {
+    if (!e.article) errs.push("Pick an article.");
+    if (!e.word) errs.push("Word is required.");
+  } else {
+    if (!e.infinitive) errs.push("Infinitive is required.");
+    if (!e.perfektAux.length) errs.push("Pick haben and/or sein.");
+    if (!e.partizip) errs.push("Partizip II is required.");
+  }
+  if (!e.meaning) errs.push("Meaning is required.");
+  return errs;
+}
+/* Legacy prototype import (flat praesensIch… fields, perfektPartizip, plural with notes). */
+function fromLegacy(o) {
+  if (o.infinitive && o.praesensIch !== undefined) {
+    const cap = { ich: "Ich", du: "Du", er: "Er", wir: "Wir", ihr: "Ihr", sie: "Sie" };
+    return normalize({ ...o, type: "verb",
+      praesens: Object.fromEntries(PERSONS.map(p => [p, o["praesens" + cap[p]]])),
+      praeteritum: Object.fromEntries(PERSONS.map(p => [p, o["praeteritum" + cap[p]]])),
+      perfektAux: [o.perfektAux], partizip: o.perfektPartizip,
+      createdAt: o.addedAt ? new Date(o.addedAt).toISOString() : undefined }, { keepMeta: false });
+  }
+  if (o.article && o.word && !o.type) {
+    const m = /^(.*?)\s*\((.*)\)\s*$/.exec(o.plural || "");
+    return normalize({ ...o, type: "noun",
+      plural: m ? m[1] : o.plural, pluralNote: m ? m[2] : "",
+      createdAt: o.addedAt ? new Date(o.addedAt).toISOString() : undefined }, { keepMeta: false });
+  }
+  return null;
+}
+
+/* =========================================================
+   State & helpers
+   ========================================================= */
+const state = { entries: [], tab: "noun", q: "", sort: Settings.get("sort", "az") };
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const headOf = e => (e.type === "noun" ? e.word : e.infinitive);
+const collator = new Intl.Collator("de-DE", { sensitivity: "base" });
+const UMLAUT = { "ä": "a", "ö": "o", "ü": "u", "ß": "ss" };
+const fold = s => {
+  let t = (s || "").toLowerCase().replace(/[äöüß]/g, c => UMLAUT[c]);
+  if (/[^\x00-\x7f]/.test(t)) t = t.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return t;
+};
+
+function toast(msg, ms = 2200) {
+  const t = $("#toast"); t.textContent = msg; t.hidden = false;
+  clearTimeout(toast._t); toast._t = setTimeout(() => { t.hidden = true; }, ms);
+}
+function findDuplicate(c, exceptId) {
+  const h = fold(c.type === "noun" ? c.word : c.infinitive);
+  return state.entries.find(e => e.id !== exceptId && e.type === c.type && fold(headOf(e)) === h);
+}
+function perfektForm(e, p, aux) {
+  return [AUX[aux][p], e.reflexive ? REFL[p] : "", e.partizip].filter(Boolean).join(" ");
+}
+function stammformen(e) {
+  const aux = e.perfektAux.map(a => AUX[a].er).join("/");
+  return [e.praesens.er && `er ${e.praesens.er}`, e.praeteritum.er, e.partizip && `${aux} ${e.partizip}`].filter(Boolean).join(" · ");
+}
+function fmtDate(iso) {
+  try { return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }); } catch { return ""; }
+}
+
+/* =========================================================
+   List rendering
+   ========================================================= */
+async function load() {
+  if (!(await DB.getMeta("seeded"))) {
+    const t = nowISO();
+    await DB.putMany(SEED.map(s => normalize({ ...s, source: "seed", createdAt: t, updatedAt: t }, { keepMeta: false })));
+    await DB.setMeta("seeded", true);
+  }
+  state.entries = await DB.all();
+  render();
+}
+
+function render() {
+  const nouns = state.entries.filter(e => e.type === "noun");
+  const verbs = state.entries.filter(e => e.type === "verb");
+  $("#nNoun").textContent = nouns.length;
+  $("#nVerb").textContent = verbs.length;
+  $("#subline").textContent = `${state.entries.length} ${state.entries.length === 1 ? "word" : "words"} · Deutsch ↔ English`;
+  document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === state.tab)));
+  $("#sort").value = state.sort;
+
+  let list = state.tab === "noun" ? nouns : verbs;
+  const q = fold(state.q.trim());
+  if (q) {
+    list = list.filter(e => {
+      const hay = [headOf(e), e.meaning, e.note, e.plural, e.partizip,
+        ...(e.type === "verb" ? [...Object.values(e.praesens), ...Object.values(e.praeteritum)] : [])].map(fold).join(" ");
+      return hay.includes(q);
+    });
+  }
+  list = [...list].sort(state.sort === "new"
+    ? (a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")
+    : (a, b) => collator.compare(headOf(a).replace(/^sich\s+/i, ""), headOf(b).replace(/^sich\s+/i, "")));
+
+  const el = $("#list");
+  if (!list.length) {
+    el.innerHTML = q
+      ? `<div class="empty"><strong>No match</strong>Nothing for “${esc(state.q)}”. Tap <b>Add word</b> to look it up.</div>`
+      : `<div class="empty"><strong>No ${state.tab === "noun" ? "nouns" : "verbs"} yet</strong>Tap <b>Add word</b> to start.</div>`;
+    return;
+  }
+  el.innerHTML = list.map(e => e.type === "noun" ? `
+    <button class="card" data-id="${esc(e.id)}">
+      <div class="head">
+        <span class="pill ${esc(e.article)}">${esc(e.article)}</span>
+        <span class="word">${esc(e.word)}</span>
+        <span class="plural">${e.plural ? `· die ${esc(e.plural)}` : "· no plural"}</span>
+      </div>
+      <div class="meaning">${esc(e.meaning)}</div>
+    </button>` : `
+    <button class="card" data-id="${esc(e.id)}">
+      <div class="head"><span class="word">${esc(e.infinitive)}</span></div>
+      <div class="meaning">${esc(e.meaning)}</div>
+      <div class="forms">${esc(stammformen(e))}</div>
+    </button>`).join("");
+}
+
+/* =========================================================
+   Sheet
+   ========================================================= */
+let sheetCleanup = null;
+function openSheet(title, html, onMount) {
+  if (sheetCleanup) { sheetCleanup(); sheetCleanup = null; }
+  $("#sheetTitle").textContent = title;
+  // Fresh body node each time so listeners from the previous sheet can't linger.
+  const old = $("#sheetBody");
+  const fresh = old.cloneNode(false);
+  old.replaceWith(fresh);
+  fresh.innerHTML = html;
+  fresh.scrollTop = 0;
+  $("#backdrop").hidden = false;
+  document.body.style.overflow = "hidden";
+  if (onMount) sheetCleanup = onMount($("#sheetBody")) || null;
+}
+function closeSheet() {
+  if (sheetCleanup) { sheetCleanup(); sheetCleanup = null; }
+  $("#backdrop").hidden = true;
+  $("#sheetBody").innerHTML = "";
+  document.body.style.overflow = "";
+}
+
+/* ---------- detail ---------- */
+function entryDetailHTML(e) {
+  if (e.type === "noun") {
+    return `
+      <div class="headword"><span class="art art-${esc(e.article)}">${esc(e.article)}</span> ${esc(e.word)}</div>
+      <dl class="kv">
+        <dt>Meaning</dt><dd>${esc(e.meaning)}</dd>
+        <dt>Plural</dt><dd>${e.plural ? `die ${esc(e.plural)}` : "—"}${e.pluralNote ? `<div class="plural">${esc(e.pluralNote)}</div>` : ""}</dd>
+      </dl>
+      ${e.note ? `<div class="note">${esc(e.note)}</div>` : ""}
+      ${e.example ? `<div class="example"><div class="de">${esc(e.example)}</div><div class="en">${esc(e.exampleEn)}</div></div>` : ""}`;
+  }
+  const tags = [e.separable && "separable", e.reflexive && "reflexive",
+    e.perfektAux.length && `Perfekt with ${e.perfektAux.join(" or ")}`].filter(Boolean);
+  const both = e.perfektAux.length > 1;
+  const perfHead = both ? "<th>Perfekt<br>haben / sein</th>" : "<th>Perfekt</th>";
+  const perfCell = p => both
+    ? `${AUX.haben[p]} / ${AUX.sein[p]} ${e.reflexive ? REFL[p] + " " : ""}${e.partizip}`
+    : (e.perfektAux[0] ? perfektForm(e, p, e.perfektAux[0]) : "");
+  const rows = PERSONS.map(p => `<tr><th>${PERSON_LABEL[p]}</th><td>${esc(e.praesens[p])}</td><td>${esc(e.praeteritum[p])}</td><td>${esc(perfCell(p))}</td></tr>`).join("");
+  return `
+    <div class="headword">${esc(e.infinitive)}</div>
+    <div class="tagrow">${tags.map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div>
+    <dl class="kv"><dt>Meaning</dt><dd>${esc(e.meaning)}</dd><dt>Partizip II</dt><dd>${esc(e.partizip)}</dd></dl>
+    ${e.note ? `<div class="note">${esc(e.note)}</div>` : ""}
+    <div class="conj-wrap"><table class="conj">
+      <thead><tr><th></th><th>Präsens</th><th>Präteritum</th>${perfHead}</tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+    ${e.example ? `<div class="example"><div class="de">${esc(e.example)}</div><div class="en">${esc(e.exampleEn)}</div></div>` : ""}`;
+}
+function openDetail(id) {
+  const e = state.entries.find(x => x.id === id);
+  if (!e) return;
+  const src = { claude: "via Claude", wiktionary: "from Wiktionary", manual: "added by hand", seed: "from prototype", import: "imported" }[e.source] || "";
+  openSheet(e.type === "noun" ? "Nomen" : "Verb", `
+    ${entryDetailHTML(e)}
+    <div class="meta">Added ${esc(fmtDate(e.createdAt))}${src ? " · " + esc(src) : ""}${e.updatedAt && e.updatedAt !== e.createdAt ? " · edited " + esc(fmtDate(e.updatedAt)) : ""}</div>
+    <div class="actions">
+      <button class="btn" data-act="edit">Edit</button>
+      <button class="btn danger" data-act="delete">Delete</button>
+    </div>`, body => {
+    let armT;
+    body.addEventListener("click", async ev => {
+      const b = ev.target.closest("button[data-act]"); if (!b) return;
+      if (b.dataset.act === "edit") openForm(e);
+      if (b.dataset.act === "delete") {
+        if (!b.classList.contains("armed")) {
+          b.classList.add("armed"); b.textContent = "Tap again to delete";
+          armT = setTimeout(() => { b.classList.remove("armed"); b.textContent = "Delete"; }, 3000);
+          return;
+        }
+        await DB.del(e.id);
+        state.entries = state.entries.filter(x => x.id !== e.id);
+        closeSheet(); render(); toast(`Deleted ${headOf(e)}`);
+      }
+    });
+    return () => clearTimeout(armT);
+  });
+}
+
+/* ---------- manual form (add / edit) ---------- */
+function formHTML(e) {
+  const v = x => esc(x ?? "");
+  const typeSwitch = e.id ? "" : `
+    <div class="field"><span class="lbl">Type</span>
+      <div class="choice" id="typeChoice">
+        <label><input type="radio" name="ftype" value="noun" ${e.type === "noun" ? "checked" : ""}> Nomen</label>
+        <label><input type="radio" name="ftype" value="verb" ${e.type === "verb" ? "checked" : ""}> Verb</label>
+      </div></div>`;
+  const common = `
+    <div class="field"><label for="f_meaning">Meaning (English)</label><input id="f_meaning" name="meaning" value="${v(e.meaning)}" autocapitalize="off"></div>
+    <div class="field"><label for="f_note">Note <span style="font-weight:400">(optional)</span></label><textarea id="f_note" name="note" rows="2">${v(e.note)}</textarea></div>
+    <div class="field"><label for="f_ex">Example (Deutsch)</label><textarea id="f_ex" name="example" rows="2" lang="de">${v(e.example)}</textarea></div>
+    <div class="field"><label for="f_exen">Example (English)</label><textarea id="f_exen" name="exampleEn" rows="2">${v(e.exampleEn)}</textarea></div>`;
+  if (e.type === "noun") {
+    return `${typeSwitch}
+      <div class="field"><span class="lbl">Article</span><div class="choice">
+        ${["der", "die", "das"].map(a => `<label class="${a}"><input type="radio" name="article" value="${a}" ${e.article === a ? "checked" : ""}> ${a}</label>`).join("")}
+      </div></div>
+      <div class="field"><label for="f_word">Word</label><input id="f_word" name="word" value="${v(e.word)}" lang="de" autocapitalize="words" spellcheck="false"></div>
+      <div class="field"><label for="f_plural">Plural</label><input id="f_plural" name="plural" value="${v(e.plural)}" lang="de" spellcheck="false" placeholder="e.g. Äpfel — leave empty if none">
+        <div class="hint">Without “die”. Leave empty for uncountable nouns.</div></div>
+      <div class="field"><label for="f_pnote">Plural note <span style="font-weight:400">(optional)</span></label><input id="f_pnote" name="pluralNote" value="${v(e.pluralNote)}"></div>
+      ${common}`;
+  }
+  const grid = `
+    <div class="grid-forms">
+      <span></span><span class="h">Präsens</span><span class="h">Präteritum</span>
+      ${PERSONS.map(p => `<span class="p">${PERSON_LABEL[p]}</span>
+        <input name="praesens.${p}" value="${v(e.praesens?.[p])}" lang="de" autocapitalize="off" spellcheck="false" aria-label="Präsens ${PERSON_LABEL[p]}">
+        <input name="praeteritum.${p}" value="${v(e.praeteritum?.[p])}" lang="de" autocapitalize="off" spellcheck="false" aria-label="Präteritum ${PERSON_LABEL[p]}">`).join("")}
+    </div>`;
+  return `${typeSwitch}
+    <div class="field"><label for="f_inf">Infinitive</label><input id="f_inf" name="infinitive" value="${v(e.infinitive)}" lang="de" autocapitalize="off" spellcheck="false" placeholder="e.g. anrufen, sich freuen"></div>
+    ${common}
+    <div class="section-title">Konjugation</div>
+    <div class="hint" style="font-size:12.5px;color:var(--muted);margin:-4px 0 10px">Write full forms, including separated prefixes and reflexive pronouns (“rufe an”, “freue mich”).</div>
+    ${grid}
+    <div class="section-title">Perfekt</div>
+    <div class="field"><span class="lbl">Auxiliary</span><div class="choice">
+      <label><input type="checkbox" name="aux" value="haben" ${e.perfektAux?.includes("haben") ? "checked" : ""}> haben</label>
+      <label><input type="checkbox" name="aux" value="sein" ${e.perfektAux?.includes("sein") ? "checked" : ""}> sein</label>
+    </div><div class="hint">Tick both for verbs like fahren (explain the difference in the note).</div></div>
+    <div class="field"><label for="f_part">Partizip II</label><input id="f_part" name="partizip" value="${v(e.partizip)}" lang="de" autocapitalize="off" spellcheck="false" placeholder="e.g. gewandert"></div>
+    <div class="field"><span class="lbl">Flags</span><div class="choice">
+      <label><input type="checkbox" name="separable" ${e.separable ? "checked" : ""}> separable</label>
+      <label><input type="checkbox" name="reflexive" ${e.reflexive ? "checked" : ""}> reflexive</label>
+    </div></div>`;
+}
+function readForm(body, base) {
+  const f = n => body.querySelector(`[name="${n}"]`);
+  const val = n => (f(n) ? f(n).value : "");
+  const raw = { ...base, meaning: val("meaning"), note: val("note"), example: val("example"), exampleEn: val("exampleEn") };
+  if (base.type === "noun") {
+    raw.article = body.querySelector('[name="article"]:checked')?.value || "";
+    raw.word = val("word"); raw.plural = val("plural"); raw.pluralNote = val("pluralNote");
+  } else {
+    raw.infinitive = val("infinitive");
+    raw.praesens = Object.fromEntries(PERSONS.map(p => [p, val("praesens." + p)]));
+    raw.praeteritum = Object.fromEntries(PERSONS.map(p => [p, val("praeteritum." + p)]));
+    raw.perfektAux = [...body.querySelectorAll('[name="aux"]:checked')].map(x => x.value);
+    raw.partizip = val("partizip");
+    raw.separable = f("separable").checked; raw.reflexive = f("reflexive").checked;
+  }
+  return normalize(raw);
+}
+function openForm(entry, { title, source } = {}) {
+  const isEdit = !!entry.id && state.entries.some(x => x.id === entry.id);
+  let draft = entry.id ? { ...entry } : normalize({ type: "noun", ...entry, source: source || entry.source || "manual" });
+  if (!isEdit) draft = { ...draft, id: draft.id || uuid() };
+  const mount = () => openSheet(title || (isEdit ? `Edit ${headOf(draft)}` : "Add by hand"), `
+    <form id="entryForm" novalidate>
+      ${formHTML(isEdit ? draft : { ...draft, id: null })}
+      <div class="error" id="formErr" hidden></div>
+      <div class="actions">
+        <button type="button" class="btn" data-act="cancel">Cancel</button>
+        <button type="submit" class="btn primary">${isEdit ? "Save changes" : "Save"}</button>
+      </div>
+    </form>`, body => {
+    const form = body.querySelector("#entryForm");
+    form.addEventListener("change", ev => {
+      if (ev.target.name === "ftype" && ev.target.value !== draft.type) {
+        // keep shared fields when switching type
+        const cur = readForm(body, draft);
+        draft = normalize({ id: draft.id, type: ev.target.value, source: draft.source,
+          meaning: cur.meaning, note: cur.note, example: cur.example, exampleEn: cur.exampleEn });
+        mount();
+      }
+    });
+    form.addEventListener("click", ev => {
+      if (ev.target.closest('[data-act="cancel"]')) isEdit ? openDetail(draft.id) : closeSheet();
+    });
+    form.addEventListener("submit", async ev => {
+      ev.preventDefault();
+      const e = readForm(body, draft);
+      e.id = draft.id;
+      e.createdAt = isEdit ? draft.createdAt : nowISO();
+      e.updatedAt = nowISO();
+      e.source = draft.source || "manual";
+      const errs = validate(e);
+      const dup = findDuplicate(e, e.id);
+      const errEl = body.querySelector("#formErr");
+      if (errs.length) { errEl.hidden = false; errEl.textContent = errs.join(" "); return; }
+      if (dup && !form.dataset.dupOk) {
+        errEl.hidden = false;
+        errEl.textContent = `“${headOf(dup)}” is already in your list. Tap Save again to keep both.`;
+        form.dataset.dupOk = "1"; return;
+      }
+      await saveEntry(e);
+      openDetail(e.id);
+      toast(isEdit ? "Saved" : `Added ${headOf(e)}`);
+    });
+  });
+  mount();
+}
+async function saveEntry(e) {
+  await DB.put(e);
+  const i = state.entries.findIndex(x => x.id === e.id);
+  if (i >= 0) state.entries[i] = e; else state.entries.push(e);
+  if (e.type !== state.tab) state.tab = e.type;
+  render();
+  requestPersistence();
+}
+async function requestPersistence() {
+  try {
+    if (navigator.storage && navigator.storage.persist && !(await navigator.storage.persisted())) await navigator.storage.persist();
+  } catch {}
+}
+
+/* =========================================================
+   Ask Claude
+   ========================================================= */
+const FORMS_SCHEMA = { type: "object", properties: Object.fromEntries(PERSONS.map(p => [p, { type: "string" }])), required: PERSONS };
+const TOOL = {
+  name: "propose_entries",
+  description: "Return German dictionary entries (nouns or verbs) for the learner's input.",
+  input_schema: {
+    type: "object",
+    properties: {
+      status: { type: "string", enum: ["ok", "unsupported", "unclear"],
+        description: "ok = candidates returned; unsupported = not a noun/verb; unclear = unknown or not a real word." },
+      message: { type: "string", description: "Short note for the learner: overlapping terms, ambiguity, or why unsupported. Empty string if nothing to flag." },
+      candidates: {
+        type: "array", maxItems: 3,
+        items: {
+          type: "object",
+          properties: {
+            type: { type: "string", enum: ["noun", "verb"] },
+            whyThisOne: { type: "string", description: "When there are several candidates: how this one differs. Else empty." },
+            article: { type: "string", enum: ["der", "die", "das"] },
+            word: { type: "string", description: "Noun, capitalised, without article." },
+            plural: { type: ["string", "null"], description: "Plural without article, or null if not used in the plural." },
+            pluralNote: { type: "string" },
+            infinitive: { type: "string", description: "Verb infinitive; include 'sich' for reflexive verbs." },
+            praesens: FORMS_SCHEMA,
+            praeteritum: FORMS_SCHEMA,
+            perfektAux: { type: "array", items: { type: "string", enum: ["haben", "sein"] } },
+            partizip: { type: "string", description: "Partizip II only, e.g. 'angerufen'." },
+            separable: { type: "boolean" },
+            reflexive: { type: "boolean" },
+            meaning: { type: "string", description: "Concise English gloss, main sense first." },
+            note: { type: "string" },
+            example: { type: "string", description: "Natural everyday German sentence using the word." },
+            exampleEn: { type: "string" },
+          },
+          required: ["type", "meaning", "example", "exampleEn"],
+        },
+      },
+    },
+    required: ["status", "message", "candidates"],
+  },
+};
+const SYSTEM = `You are a careful German lexicographer helping an English-speaking learner build a personal vocabulary list. The learner sends one word or short phrase, in English or German.
+
+Rules:
+- Only nouns and verbs are supported. If the input is (or clearly translates to) another word class, set status "unsupported", give the German translation and word class in message, and return no candidates.
+- If several German words overlap in meaning (e.g. "medical report" → Arztbericht / Befund / Arztbrief) or the input is ambiguous, return up to 3 candidates, most common first, and explain the differences in message and in each candidate's whyThisOne. Never silently pick one when the choice matters. If one word is clearly right, return just that one.
+- If the input is not a real word or you are not sure the German word exists, set status "unclear" and explain. Never invent words.
+- If the input is German, keep that exact word as the first candidate (correcting only spelling/capitalisation).
+- Nouns: article; word capitalised without article; plural without article (null if not normally used in the plural, and explain in pluralNote). If gender or plural changes with meaning, say so in note.
+- Verbs: infinitive (with "sich" for reflexive verbs). Full Präsens and Präteritum for ich, du, er (= er/sie/es), wir, ihr, sie (= sie/Sie). Write complete forms including separated prefixes and reflexive pronouns, e.g. "rufe an", "freue mich", "rief an". perfektAux: ["haben"], ["sein"], or both when both are standard (e.g. fahren) — then explain the difference in note. partizip: Partizip II only. Set separable and reflexive.
+- meaning: concise English gloss. note: optional, short (register, false friends, related words); empty string if none.
+- example: one natural everyday German sentence; exampleEn: its English translation.
+- Standard German spelling (Duden). Double-check irregular forms before answering.
+Always answer by calling propose_entries.`;
+
+async function askClaude(text, hint, signal) {
+  const key = Settings.get("apiKey", "");
+  if (!key) { const err = new Error("Add your Claude API key in Settings first."); err.code = "nokey"; throw err; }
+  let res;
+  try {
+    res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST", signal,
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": key,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true",
+    },
+    body: JSON.stringify({
+      model: Settings.get("model", DEFAULT_MODEL),
+      max_tokens: 4000,
+      system: SYSTEM,
+      tools: [TOOL],
+      tool_choice: { type: "tool", name: TOOL.name },
+      messages: [{ role: "user", content: `Input: ${text}\nRequested word type: ${hint}` }],
+    }),
+    });
+  } catch (err) {
+    if (err.name === "AbortError") throw err;
+    const e2 = new Error("Couldn't reach Claude — check your connection."); e2.code = "network"; throw e2;
+  }
+  if (!res.ok) {
+    let detail = "";
+    try { detail = (await res.json()).error?.message || ""; } catch {}
+    const map = {
+      401: "Your API key was rejected. Check it in Settings.",
+      403: "This API key isn't allowed to use that model.",
+      404: "Model not found — pick another model in Settings.",
+      429: "Rate limited — wait a moment and try again.",
+      529: "Claude is overloaded right now — try again shortly.",
+    };
+    const err = new Error(map[res.status] || `Request failed (${res.status}). ${detail}`);
+    err.detail = detail; throw err;
+  }
+  const data = await res.json();
+  if (data.stop_reason === "max_tokens") throw new Error("The answer was cut off — try again.");
+  const tu = (data.content || []).find(b => b.type === "tool_use");
+  if (!tu) throw new Error("Unexpected answer from Claude — try again.");
+  return { ...tu.input, usage: data.usage };
+}
+
+/* =========================================================
+   Offline dictionary (Wiktionary via kaikki.org, built by tools/build_dict.py)
+   ========================================================= */
+const ART = { m: "der", f: "die", n: "das", p: "die" };
+const stripLabel = s => s.replace(/^\(([^)]*)\)\s*/, "");
+const labelOf = s => (s.match(/^\(([^)]*)\)/) || [])[1] || "";
+const Dict = {
+  state: "idle", // idle | loading | ready | missing | error
+  meta: null, items: [], promise: null, error: null,
+  load() {
+    if (this.promise) return this.promise;
+    this.state = "loading";
+    this.promise = (async () => {
+      try {
+        const get = async name => {
+          const r = await fetch(`dict/${name}.json`);
+          if (!r.ok) { const e = new Error(`HTTP ${r.status}`); e.status = r.status; throw e; }
+          return r.json();
+        };
+        const [meta, nouns, verbs] = await Promise.all([get("meta"), get("nouns"), get("verbs")]);
+        const items = [];
+        for (const r of nouns) {
+          const plurals = r[2] && r[2] !== "?" ? r[2].split("|") : [];
+          items.push({ k: "noun", word: r[0], g: r[1], pl: r[2], senses: r[3], rank: r[4],
+            h: fold(r[0]), alt: "|" + plurals.map(fold).join("|") + "|", e: englishKey(r[3]) });
+        }
+        for (const r of verbs) {
+          const pr = r[2].split("|"), pt = r[3].split("|");
+          items.push({ k: "verb", word: r[0], senses: r[1], pr, pt, part: r[4], aux: r[5], flags: r[6], rank: r[7],
+            h: fold(r[0]), alt: "|" + [...pr, ...pt, r[4]].map(fold).join("|") + "|", e: englishKey(r[1]) });
+        }
+        this.meta = meta; this.items = items; this.state = "ready";
+      } catch (err) {
+        this.error = err;
+        this.state = err.status === 404 ? "missing" : "error";
+        this.promise = null;
+      }
+    })();
+    return this.promise;
+  },
+  search(query, hint = "auto", limit = 40) {
+    const raw = query.trim();
+    const q = fold(raw).replace(/^sich\s+/, "");
+    if (q.length < 2 || this.state !== "ready") return [];
+    const hasTo = /^to\s+/.test(q);
+    const qe = q.replace(/^to\s+/, "");
+    const lowerTyped = raw && raw[0] === raw[0].toLowerCase();
+    const out = [];
+    for (const x of this.items) {
+      if (hint !== "auto" && x.k !== hint) continue;
+      let cls = 99;
+      const es = englishScore(x.e, qe, hasTo);
+      if (x.h === q) {
+        // "report" typed in lower case matching der Report ("report"): probably English → rank with translations.
+        cls = lowerTyped && x.k === "noun" && es < 5 ? 2.2 : 0;
+      } else if (x.alt.includes("|" + q + "|")) cls = 1;
+      else {
+        cls = es;
+        if (cls > 3 && x.h.startsWith(q)) cls = 3;
+      }
+      if (cls < 99) out.push({ x, score: searchScore(cls, x) });
+    }
+    out.sort((a, b) => a.score - b.score);
+    return out.slice(0, limit).map(o => o.x);
+  },
+};
+// Exact German matches always come first. Otherwise one match class ≈ 50k frequency ranks,
+// so a common word matched loosely (Tisch: "dining table") beats a rare exact one.
+function searchScore(cls, x) {
+  if (cls < 2) return -1e9 + cls * 1e6 + Math.min(x.rank, 999999);
+  const rankTerm = x.rank < 999999 ? Math.min(x.rank, 60000) : 200000;
+  return cls * 50000 + rankTerm + x.h.length;
+}
+function englishKey(senses) {
+  return senses.map(s => fold(stripLabel(s))).join("\u0001");
+}
+// 2 = a sense starts with the query as a whole phrase ("water", or "to water" for verbs),
+// 4 = a sense starts with it followed by more words, 5 = it appears as whole word(s) inside a sense.
+// +0.5 when the "to …" form doesn't match what was typed (verb vs. noun intent); +0.1 per later sense.
+function englishScore(e, q, hasTo) {
+  let best = 99, idx = e.indexOf(q), tries = 0;
+  const isWordChar = c => c !== undefined && /[a-z0-9]/.test(c);
+  while (idx !== -1 && tries++ < 8) {
+    const before = idx === 0 ? "\u0001" : e[idx - 1];
+    const after = e[idx + q.length];
+    if (!isWordChar(before) && !isWordChar(after)) {
+      const atStart = before === "\u0001";
+      const afterTo = idx >= 3 && e.startsWith("to ", idx - 3) && (idx === 3 || e[idx - 4] === "\u0001");
+      const wholeSense = after === undefined || after === "\u0001" || after === "," || after === ";" || e.startsWith(" (", idx + q.length);
+      let cls = atStart || afterTo ? (wholeSense ? 2 : 4) : 5;
+      if ((atStart || afterTo) && afterTo !== hasTo) cls += 0.5;
+      const senseIdx = e.slice(0, idx).split("\u0001").length - 1;
+      best = Math.min(best, cls + senseIdx * 0.1);
+    }
+    idx = e.indexOf(q, idx + 1);
+  }
+  return best;
+}
+function dictStamm(x) {
+  const aux = x.aux.split(",").filter(a => !a.startsWith("(")).map(a => (a === "s" ? "ist" : "hat")).join("/");
+  return `er ${x.pr[2]} · ${x.pt[2]} · ${aux} ${x.part}`;
+}
+function withRefl(form, p) {
+  const [first, ...rest] = form.split(" ");
+  return [first, REFL[p], ...rest].join(" ");
+}
+/* Map a dictionary item + chosen sense (and article for nouns) into an app entry. */
+function dictToEntry(x, senseIdx = 0, articleCode) {
+  const chosen = x.senses[senseIdx] || x.senses[0];
+  const label = labelOf(chosen);
+  const others = x.senses.filter((_, i) => i !== senseIdx).map(stripLabel).slice(0, 3);
+  const usage = label.split(", ").filter(l => l && l !== "reflexive").join(", ");
+  const notes = [];
+  if (usage) notes.push(`Usage: ${usage}.`);
+  if (others.length) notes.push(`Other meanings: ${others.join("; ")}.`);
+  const base = { meaning: stripLabel(chosen), example: "", exampleEn: "", source: "wiktionary" };
+  if (x.k === "noun") {
+    const codes = x.g.split("");
+    const code = articleCode && codes.includes(articleCode) ? articleCode : codes[0];
+    if (x.g !== "p" && codes.length > 1) notes.unshift(`Gender varies: ${codes.map(c => ART[c]).join(" / ")} ${x.word}.`);
+    let plural = null, pluralNote = "";
+    if (x.g === "p") { plural = x.word; pluralNote = "Plural only — no singular."; }
+    else if (x.pl === "") pluralNote = "No plural in common use.";
+    else if (x.pl === "?") pluralNote = "Plural not listed in the dictionary.";
+    else {
+      const ps = x.pl.split("|");
+      plural = ps[0];
+      if (ps.length > 1) pluralNote = `Also: ${ps.slice(1).join(", ")}.`;
+    }
+    return normalize({ ...base, type: "noun", article: ART[code], word: x.word, plural, pluralNote, note: notes.join(" ") }, { keepMeta: false });
+  }
+  const reflexive = label.split(", ").includes("reflexive") || x.flags.includes("r");
+  const auxes = x.aux.split(",");
+  const normalAux = auxes.filter(a => !a.startsWith("(")).map(a => (a === "s" ? "sein" : "haben"));
+  const rareAux = auxes.filter(a => a.startsWith("(")).map(a => (a.includes("s") ? "sein" : "haben"));
+  if (normalAux.length > 1) notes.push("Perfekt with haben or sein — depends on the meaning (and sometimes region).");
+  if (rareAux.length) notes.push(`Perfekt rarely with ${rareAux.join("/")}.`);
+  const forms = arr => Object.fromEntries(PERSONS.map((p, i) => [p, reflexive ? withRefl(arr[i], p) : arr[i]]));
+  return normalize({ ...base, type: "verb",
+    infinitive: reflexive ? `sich ${x.word}` : x.word,
+    praesens: forms(x.pr), praeteritum: forms(x.pt),
+    perfektAux: normalAux.length ? normalAux : rareAux, partizip: x.part,
+    separable: x.flags.includes("s"), reflexive, note: notes.join(" ") }, { keepMeta: false });
+}
+function dictResultHTML(x, i) {
+  if (x.k === "noun") {
+    const art = x.g.split("").map(c => ART[c]);
+    const pl = x.g === "p" ? "plural only" : x.pl === "" ? "no plural" : x.pl === "?" ? "" : `die ${x.pl.split("|")[0]}`;
+    return `<button class="card" data-res="${i}">
+      <div class="head">${uniqArr(art).map(a => `<span class="pill ${a}">${a}</span>`).join("")}
+        <span class="word">${esc(x.word)}</span>${pl ? `<span class="plural">· ${esc(pl)}</span>` : ""}</div>
+      <div class="meaning">${esc(x.senses.map(stripLabel).slice(0, 2).join("; "))}</div></button>`;
+  }
+  return `<button class="card" data-res="${i}">
+    <div class="head"><span class="word">${esc(x.word)}</span><span class="tag">Verb</span></div>
+    <div class="meaning">${esc(x.senses.map(stripLabel).slice(0, 2).join("; "))}</div>
+    <div class="forms">${esc(dictStamm(x))}</div></button>`;
+}
+const uniqArr = a => [...new Set(a)];
+
+function openAdd(prefill = "") {
+  const hint = Settings.get("hint", "auto");
+  const hasKey = !!Settings.get("apiKey", "");
+  openSheet("Add word", `
+    <div class="field">
+      <label for="askInput">German or English word</label>
+      <form class="askrow" id="askForm">
+        <input id="askInput" type="search" value="${esc(prefill)}" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" placeholder="e.g. Apfel, to call, report">
+      </form>
+    </div>
+    <div class="field"><div class="choice" id="hintChoice">
+      ${[["auto", "All"], ["noun", "Nomen"], ["verb", "Verben"]].map(([v, l]) => `<label><input type="radio" name="hint" value="${v}" ${hint === v ? "checked" : ""}> ${l}</label>`).join("")}
+    </div></div>
+    <div id="dictOut"></div>
+    <div id="askOut"></div>
+    <div class="actions" style="margin-top:18px">
+      <button class="btn" data-act="manual">Add by hand</button>
+      ${hasKey ? `<button class="btn" data-act="claude">Ask Claude</button>` : ""}
+    </div>
+    <div class="meta">Dictionary: Wiktionary (CC BY-SA 4.0) via kaikki.org</div>`, body => {
+    let ctrl = null, timer = null, results = [];
+    const out = body.querySelector("#dictOut");
+    const askOut = body.querySelector("#askOut");
+    const input = body.querySelector("#askInput");
+    const currentHint = () => body.querySelector('[name="hint"]:checked')?.value || "auto";
+    if (!prefill) setTimeout(() => input.focus(), 250);
+
+    const runSearch = () => {
+      const q = input.value.trim();
+      askOut.innerHTML = "";
+      if (Dict.state === "missing") {
+        out.innerHTML = `<div class="flag">The offline dictionary isn't installed yet. Build it with <b>tools/build_dict.py</b> (see README) and upload the <b>dict</b> folder. You can still add words by hand${hasKey ? " or ask Claude" : ""}.</div>`;
+        return;
+      }
+      if (Dict.state === "error") {
+        out.innerHTML = `<div class="error">Couldn't load the dictionary (${esc(Dict.error?.message || "error")}). Check your connection and reopen.</div>`;
+        return;
+      }
+      if (Dict.state !== "ready") {
+        out.innerHTML = `<div class="status"><span class="spinner"></span> Loading dictionary…</div>`;
+        return;
+      }
+      if (q.length < 2) { out.innerHTML = `<div class="hint" style="color:var(--muted);font-size:14px">Type at least two letters.</div>`; return; }
+      results = Dict.search(q, currentHint());
+      out.innerHTML = results.length
+        ? results.map(dictResultHTML).join("")
+        : `<div class="flag">No dictionary match for “${esc(q)}”. Check the spelling, try the German infinitive or singular, or add it by hand${hasKey ? " / ask Claude" : ""}.</div>`;
+    };
+    Dict.load().then(runSearch);
+    runSearch();
+
+    input.addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(runSearch, 180); });
+    body.addEventListener("change", ev => {
+      if (ev.target.name === "hint") { Settings.set("hint", ev.target.value); runSearch(); }
+    });
+    body.querySelector("#askForm").addEventListener("submit", ev => { ev.preventDefault(); input.blur(); runSearch(); });
+    body.addEventListener("click", async ev => {
+      const r = ev.target.closest("[data-res]");
+      if (r && out.contains(r)) { openDictPreview(results[+r.dataset.res], input.value); return; }
+      const b = ev.target.closest("[data-act]"); if (!b) return;
+      const act = b.dataset.act;
+      if (act === "manual") openForm({ type: currentHint() === "verb" ? "verb" : "noun" });
+      if (act === "settings") openSettings();
+      if (act === "cancel" && ctrl) ctrl.abort();
+      if (act === "claude") {
+        const text = input.value.trim();
+        if (!text) { input.focus(); return; }
+        if (ctrl) ctrl.abort();
+        ctrl = new AbortController();
+        out.innerHTML = "";
+        askOut.innerHTML = `<div class="status"><span class="spinner"></span> Asking Claude… <button class="textbtn" data-act="cancel">Cancel</button></div>`;
+        try {
+          renderCandidates(askOut, await askClaude(text, currentHint(), ctrl.signal), text);
+        } catch (err) {
+          if (err.name === "AbortError") { askOut.innerHTML = ""; return; }
+          askOut.innerHTML = `<div class="error">${esc(err.message || "Something went wrong.")}</div>`;
+        } finally { ctrl = null; }
+      }
+    });
+    return () => { clearTimeout(timer); if (ctrl) ctrl.abort(); };
+  });
+}
+
+function openDictPreview(x, query) {
+  let senseIdx = 0, art = x.k === "noun" ? x.g[0] : null, rendered = false;
+  const render = () => {
+    const keepScroll = rendered ? $("#sheetBody").scrollTop : 0;
+    const entry = dictToEntry(x, senseIdx, art);
+    const dup = findDuplicate(entry);
+    const senseChoice = x.senses.length > 1 ? `
+      <div class="field"><span class="lbl">Which meaning do you want to save?</span><div class="choice senses">
+        ${x.senses.map((s, i) => `<label><input type="radio" name="sense" value="${i}" ${i === senseIdx ? "checked" : ""}> ${esc(s)}</label>`).join("")}
+      </div></div>` : "";
+    const artChoice = x.k === "noun" && x.g.length > 1 && x.g !== "p" ? `
+      <div class="field"><span class="lbl">Article to save</span><div class="choice">
+        ${x.g.split("").map(c => `<label class="${ART[c]}"><input type="radio" name="dart" value="${c}" ${c === art ? "checked" : ""}> ${ART[c]}</label>`).join("")}
+      </div></div>` : "";
+    openSheet("Wörterbuch", `
+      ${senseChoice}${artChoice}
+      ${entryDetailHTML(entry)}
+      ${dup ? `<div class="dup">“${esc(headOf(dup))}” is already in your list.</div>` : ""}
+      <div class="hint" style="font-size:13px;color:var(--muted);margin-top:6px">No example sentence yet — tap “Edit first” to add your own.</div>
+      <div class="actions">
+        <button class="btn" data-act="back">Back</button>
+        <button class="btn" data-act="edit">Edit first</button>
+        <button class="btn primary" data-act="save">${dup ? "Save anyway" : "Save"}</button>
+      </div>
+      ${dup ? `<div class="actions" style="margin-top:8px"><button class="btn" data-act="open">Open saved entry</button></div>` : ""}
+      <div class="meta">Source: Wiktionary (CC BY-SA 4.0) via kaikki.org</div>`, body => {
+      body.addEventListener("change", ev => {
+        if (ev.target.name === "sense") { senseIdx = +ev.target.value; render(); }
+        if (ev.target.name === "dart") { art = ev.target.value; render(); }
+      });
+      body.addEventListener("click", async ev => {
+        const b = ev.target.closest("[data-act]"); if (!b) return;
+        const act = b.dataset.act;
+        if (act === "back") openAdd(query);
+        if (act === "open") openDetail(dup.id);
+        if (act === "edit") openForm(dictToEntry(x, senseIdx, art), { title: "Check & save", source: "wiktionary" });
+        if (act === "save") {
+          const e = { ...dictToEntry(x, senseIdx, art), createdAt: nowISO(), updatedAt: nowISO() };
+          await saveEntry(e);
+          openDetail(e.id);
+          toast(`Added ${headOf(e)}`);
+        }
+      });
+    });
+    if (rendered) $("#sheetBody").scrollTop = keepScroll;
+    rendered = true;
+  };
+  render();
+}
+
+function renderCandidates(out, r, text) {
+  const cands = (r.candidates || [])
+    .map(c => ({ c: normalize({ ...c, source: "claude" }, { keepMeta: false }), why: str(c.whyThisOne) }))
+    .filter(x => validate(x.c).length === 0);
+  const dropped = (r.candidates || []).length - cands.length;
+  let html = "";
+  if (r.message) html += `<div class="flag">${esc(r.message)}</div>`;
+  if (r.status !== "ok" && !cands.length) {
+    html += r.message ? "" : `<div class="flag">Claude couldn't find a noun or verb for “${esc(text)}”.</div>`;
+  }
+  if (dropped > 0) html += `<div class="error">${dropped} incomplete suggestion${dropped > 1 ? "s were" : " was"} skipped.</div>`;
+  html += cands.map(({ c, why }, i) => {
+    const dup = findDuplicate(c);
+    return `<div class="cand">
+      ${entryDetailHTML(c)}
+      ${why && cands.length > 1 ? `<div class="why">${esc(why)}</div>` : ""}
+      ${dup ? `<div class="dup">Already in your list.</div>` : ""}
+      <div class="actions">
+        ${dup ? `<button class="btn" data-open="${esc(dup.id)}">Open saved</button>` : ""}
+        <button class="btn" data-edit="${i}">Edit first</button>
+        <button class="btn primary" data-save="${i}">${dup ? "Save anyway" : "Save"}</button>
+      </div></div>`;
+  }).join("");
+  out.innerHTML = html;
+  out.onclick = async ev => {
+    const s = ev.target.closest("[data-save]"), ed = ev.target.closest("[data-edit]"), op = ev.target.closest("[data-open]");
+    if (op) return openDetail(op.dataset.open);
+    if (ed) return openForm({ ...cands[+ed.dataset.edit].c }, { title: "Check & save", source: "claude" });
+    if (s) {
+      const c = cands[+s.dataset.save].c;
+      const e = { ...c, id: uuid(), createdAt: nowISO(), updatedAt: nowISO(), source: "claude" };
+      await saveEntry(e);
+      s.disabled = true; s.textContent = "Saved ✓";
+      toast(`Added ${headOf(e)}`);
+    }
+  };
+}
+
+/* =========================================================
+   Settings, export, import
+   ========================================================= */
+function openSettings() {
+  const key = Settings.get("apiKey", "");
+  const model = Settings.get("model", DEFAULT_MODEL);
+  const lastBackup = Settings.get("lastBackup", "");
+  openSheet("Settings", `
+    <div class="setting-block">
+      <h3>Offline dictionary</h3>
+      <p id="s_dict">Checking…</p>
+    </div>
+    <div class="setting-block">
+      <h3>Claude lookup <span style="font-weight:400;color:var(--muted)">(optional)</span></h3>
+      <p>Not needed — the offline dictionary covers lookups. With a key, “Ask Claude” appears for tricky words and example sentences. Stored on this device and sent only to api.anthropic.com. Create one at platform.claude.com → Settings → API keys (billed separately from a Claude subscription).</p>
+      <div class="field inline">
+        <input id="s_key" type="password" value="${esc(key)}" placeholder="sk-ant-…" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="btn" style="flex:0 0 auto" data-act="toggleKey">Show</button>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="s_model">Model</label>
+        <select id="s_model">${MODELS.map(m => `<option value="${m.id}" ${m.id === model ? "selected" : ""}>${esc(m.label)}</option>`).join("")}
+          ${MODELS.some(m => m.id === model) ? "" : `<option value="${esc(model)}" selected>${esc(model)}</option>`}
+        </select>
+      </div>
+      <div class="actions"><button class="btn primary" data-act="saveKey">Save</button>${key ? `<button class="btn danger" data-act="clearKey">Remove key</button>` : ""}</div>
+    </div>
+    <div class="setting-block">
+      <h3>Backup</h3>
+      <p>Your words live only on this device. Export a backup now and then — it's also how you'll move them to a native app later.${lastBackup ? ` Last export: ${esc(fmtDate(lastBackup))}.` : " No export yet."}</p>
+      <div class="actions" style="margin-top:0">
+        <button class="btn" data-act="export">Export JSON</button>
+        <button class="btn" data-act="import">Import JSON</button>
+      </div>
+      <input type="file" id="s_file" accept="application/json,.json" hidden>
+      <div id="s_msg" class="hint" style="margin-top:8px"></div>
+    </div>
+    <div class="setting-block">
+      <h3>Storage</h3>
+      <p id="s_storage">Checking…</p>
+    </div>
+    <div class="meta">Wortschatz · data schema v${SCHEMA_VERSION}</div>`, body => {
+    const msg = body.querySelector("#s_msg");
+    Dict.load().then(() => {
+      const el = body.querySelector("#s_dict"); if (!el) return;
+      if (Dict.state === "ready") {
+        const m = Dict.meta || {};
+        el.textContent = `${(m.nouns || 0).toLocaleString()} nouns and ${(m.verbs || 0).toLocaleString()} verbs, built ${m.built || "?"}. Works offline. Data: Wiktionary contributors, CC BY-SA 4.0, extracted by Wiktextract (kaikki.org)${m.ranked ? "; word frequencies: FrequencyWords (OpenSubtitles), CC BY-SA 4.0" : ""}.`;
+      } else if (Dict.state === "missing") {
+        el.textContent = "Not installed. Run tools/build_dict.py on your Mac and upload the dict folder (see README).";
+      } else {
+        el.textContent = "Couldn't load it right now — check your connection.";
+      }
+    });
+    (async () => {
+      let t = "Saved in this browser's storage.";
+      try {
+        if (navigator.storage?.persisted) t += (await navigator.storage.persisted())
+          ? " Marked as persistent — the system shouldn't clear it."
+          : " Not marked persistent yet; keep backups.";
+      } catch {}
+      if (!matchMedia("(display-mode: standalone)").matches && !navigator.standalone)
+        t += " Tip: in Safari, tap Share → Add to Home Screen and use it from there.";
+      const el = body.querySelector("#s_storage"); if (el) el.textContent = t;
+    })();
+    body.addEventListener("click", async ev => {
+      const b = ev.target.closest("[data-act]"); if (!b) return;
+      const act = b.dataset.act;
+      if (act === "toggleKey") { const i = body.querySelector("#s_key"); i.type = i.type === "password" ? "text" : "password"; b.textContent = i.type === "password" ? "Show" : "Hide"; }
+      if (act === "saveKey") {
+        const k = body.querySelector("#s_key").value.trim();
+        if (k && !k.startsWith("sk-ant-")) { toast("That doesn't look like a Claude API key (sk-ant-…)", 3000); return; }
+        Settings.set("apiKey", k); Settings.set("model", body.querySelector("#s_model").value);
+        toast(k ? "Saved" : "Key removed"); openSettings();
+      }
+      if (act === "clearKey") { Settings.set("apiKey", null); toast("Key removed"); openSettings(); }
+      if (act === "export") exportJSON(msg);
+      if (act === "import") body.querySelector("#s_file").click();
+    });
+    body.querySelector("#s_file").addEventListener("change", async ev => {
+      const file = ev.target.files[0]; if (!file) return;
+      try { msg.textContent = await importJSON(await file.text()); }
+      catch (err) { msg.textContent = "Import failed: " + err.message; }
+      ev.target.value = "";
+    });
+  });
+}
+
+async function exportJSON(msgEl) {
+  const payload = { app: "wortschatz", schemaVersion: SCHEMA_VERSION, exportedAt: nowISO(), entries: state.entries };
+  const name = `wortschatz-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  try {
+    const file = new File([blob], name, { type: "application/json" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: "Wortschatz backup" });
+    } else {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    }
+    Settings.set("lastBackup", nowISO());
+    if (msgEl) msgEl.textContent = `Exported ${state.entries.length} entries.`;
+  } catch (err) {
+    if (err.name !== "AbortError" && msgEl) msgEl.textContent = "Export failed: " + err.message;
+  }
+}
+
+async function importJSON(text) {
+  let data = JSON.parse(text);
+  let list = Array.isArray(data) ? data : data.entries;
+  if (!Array.isArray(list)) throw new Error("No entries found in that file.");
+  const incoming = list.map(o => (o.type ? normalize({ ...o, source: o.source || "import" }) : fromLegacy({ ...o, source: "import" })))
+                       .filter(e => e && validate(e).length === 0);
+  let added = 0, updated = 0, skipped = 0;
+  const byId = new Map(state.entries.map(e => [e.id, e]));
+  const seenHeads = new Set(state.entries.map(e => e.type + ":" + fold(headOf(e))));
+  const toWrite = [];
+  for (const e of incoming) {
+    const cur = byId.get(e.id);
+    const head = e.type + ":" + fold(headOf(e));
+    if (cur) {
+      // same entry: newer edit wins
+      if ((e.updatedAt || "") > (cur.updatedAt || "")) { toWrite.push(e); updated++; } else skipped++;
+    } else if (seenHeads.has(head)) {
+      skipped++; // same word already saved under a different id
+    } else {
+      toWrite.push(e); seenHeads.add(head); added++;
+    }
+  }
+  if (toWrite.length) await DB.putMany(toWrite);
+  state.entries = await DB.all();
+  render();
+  const bad = list.length - incoming.length;
+  return `Imported: ${added} new, ${updated} updated, ${skipped} unchanged/duplicate${bad ? `, ${bad} invalid skipped` : ""}.`;
+}
+
+/* =========================================================
+   Wiring
+   ========================================================= */
+document.querySelector(".seg").addEventListener("click", ev => {
+  const b = ev.target.closest("button[data-tab]"); if (!b) return;
+  state.tab = b.dataset.tab; render(); window.scrollTo({ top: 0 });
+});
+$("#search").addEventListener("input", ev => { state.q = ev.target.value; render(); });
+$("#sort").addEventListener("change", ev => { state.sort = ev.target.value; Settings.set("sort", state.sort); render(); });
+$("#list").addEventListener("click", ev => { const c = ev.target.closest(".card"); if (c) openDetail(c.dataset.id); });
+$("#fab").addEventListener("click", () => {
+  const q = state.q.trim();
+  const hasMatch = q && $("#list .card");
+  openAdd(q && !hasMatch ? q : "");
+});
+$("#btnSettings").addEventListener("click", openSettings);
+$("#sheetClose").addEventListener("click", closeSheet);
+$("#backdrop").addEventListener("click", ev => { if (ev.target.id === "backdrop") closeSheet(); });
+document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("#backdrop").hidden) closeSheet(); });
+
+load().catch(err => {
+  $("#list").innerHTML = `<div class="empty"><strong>Storage unavailable</strong>${esc(err.message || String(err))}<br>Private Browsing blocks saving — open the app normally.</div>`;
+});
+
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+</script>
+</body>
+</html>

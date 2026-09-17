@@ -1,0 +1,5 @@
+Dictionary data in this folder is derived from Wiktionary (https://en.wiktionary.org),
+extracted with Wiktextract (Tatu Ylonen, https://github.com/tatuylonen/wiktextract)
+and published at https://kaikki.org. Licensed CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/).
+Changes: filtered to German nouns and verbs, reformatted, glosses shortened.
+Word-frequency ranks: FrequencyWords by Hermit Dave (OpenSubtitles), CC BY-SA 4.0.

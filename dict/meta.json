@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "built": "2026-09-17",
+  "nouns": 53056,
+  "verbs": 8990,
+  "ranked": true,
+  "source": "English Wiktionary (German entries), extracted by Wiktextract / kaikki.org",
+  "license": "CC BY-SA 4.0",
+  "formats": {
+    "nouns": "[word, genders m|f|n|p (head order), plurals ('a|b', '' = none, '?' = unknown), senses[], rank]",
+    "verbs": "[infinitive, senses[], praesens 'ich|du|er|wir|ihr|sie', praeteritum (same), partizip, aux ('h','s','h,s','s,(h)' — parentheses = rare), flags ('s' separable, 'r' reflexive-only), rank]"
+  }
+}
