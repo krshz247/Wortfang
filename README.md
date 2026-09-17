@@ -6,7 +6,7 @@
 - **Your words stay on your phone,** stored in the browser's storage (IndexedDB). Settings → Export/Import saves and restores a JSON backup.
 - **No tracking and no server.** The app is plain static files.
 
-**Live app:** https://krshz247.github.io/wortschatz/
+**Live app:** https://krshz247.github.io/Wortfang/
 
 ## Share it with a friend
 
