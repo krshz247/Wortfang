@@ -1,6 +1,6 @@
-// Wortschatz service worker — offline app shell + offline dictionary.
+// Wortfang service worker — offline app shell + offline dictionary.
 // Bump VERSION whenever you change index.html (or other shell files) so phones pick up the update.
-const VERSION = "wortfang-v4";
+const VERSION = "wortfang-v5";
 const DICT_CACHE = "wortschatz-dict";
 const FONT_CACHE = "wortschatz-fonts";
 const SHELL = [
@@ -86,8 +86,10 @@ self.addEventListener("fetch", event => {
   const key = req.mode === "navigate" ? "./index.html" : req;
   event.respondWith((async () => {
     const cache = await caches.open(VERSION);
+    // Only good responses count; a 404/5xx falls back to the cached copy.
     const network = fetch(req).then(res => {
-      if (res.ok) cache.put(key, res.clone());
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      cache.put(key, res.clone());
       return res;
     });
     const timeout = new Promise(resolve => setTimeout(resolve, 3000, null));
@@ -97,6 +99,6 @@ self.addEventListener("fetch", event => {
     } catch { /* offline — fall through to cache */ }
     const hit = await cache.match(key, { ignoreSearch: true });
     if (hit) return hit;
-    try { return await network; } catch { return Response.error(); }
+    try { return await network; } catch { return fetch(req).catch(() => Response.error()); }
   })());
 });

@@ -1,10 +1,10 @@
 #!/bin/bash
 # Publish Wortfang to GitHub Pages using the GitHub CLI (gh).
-#   cd ~/Claude/Wortschatz && bash publish.sh            # repo name: wortschatz
+#   cd ~/Claude/Wortschatz && bash publish.sh            # repo name: Wortfang
 #   bash publish.sh my-other-name                         # custom repo name
 set -euo pipefail
 cd "$(dirname "$0")"
-REPO="${1:-wortschatz}"
+REPO="${1:-Wortfang}"
 
 if ! command -v gh >/dev/null 2>&1; then
   echo "GitHub CLI (gh) is not installed."
@@ -30,7 +30,12 @@ git add index.html manifest.webmanifest sw.js README.md LICENSE .gitignore icons
 git -c user.name="$OWNER" -c user.email="$OWNER@users.noreply.github.com" commit -q -m "Update Wortfang" || echo "(nothing new to commit)"
 
 if gh repo view "$OWNER/$REPO" >/dev/null 2>&1; then
-  git remote get-url origin >/dev/null 2>&1 || git remote add origin "https://github.com/$OWNER/$REPO.git"
+  if git remote get-url origin >/dev/null 2>&1; then
+    git remote set-url origin "https://github.com/$OWNER/$REPO.git"   # e.g. after a repo rename
+  else
+    git remote add origin "https://github.com/$OWNER/$REPO.git"
+  fi
+  git pull --rebase -X theirs -q origin main || { echo "Couldn't merge changes made on GitHub — resolve them, then run this again."; exit 1; }
   git push -u origin main
 else
   gh repo create "$REPO" --public --description "Wortfang — catch German words as you meet them (offline PWA)" --source . --remote origin --push

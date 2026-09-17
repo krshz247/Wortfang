@@ -1,9 +1,10 @@
 # Wortfang
 
-*Catch German words as you meet them.* Wortfang is a small vocabulary app for German nouns and verbs that you add to your phone's Home Screen.
+*Every word you look up stays here — article, meaning and tenses, ready when you need to review.* Wortfang is a small vocabulary app for German nouns and verbs that you add to your phone's Home Screen.
 
-- **Look up any word, offline:** type German or English. The built-in dictionary (from Wiktionary) gives articles, plurals, full Präsens/Präteritum/Perfekt tables and English meanings. No account and no API key are needed.
-- **Your words stay on your phone,** stored in the browser's storage (IndexedDB). Settings → Export/Import saves and restores a JSON backup.
+- **Look up any word, offline:** type German or English and tap **Look up**. The best match from the built-in dictionary (Wiktionary) is saved straight away: article, plural, meaning, or the full Präsens/Präteritum/Perfekt tables. You can **Undo**, **swap** it for one of the other matches, or **edit** it to add your own example. No account and no API key are needed.
+- **Review:** switch between Nouns and Verbs, filter your saved words, or open **Table view** for a compact list. You can also add or edit words by hand.
+- **Your words stay on your phone,** stored in the browser's storage (IndexedDB). Settings → Export/Import saves and restores a JSON backup, and Settings → **Delete all words** starts fresh.
 - **No tracking and no server.** The app is plain static files.
 
 **Live app:** https://krshz247.github.io/Wortfang/
@@ -56,13 +57,13 @@ cd ~/Claude/Wortschatz
 bash publish.sh
 ```
 
-The script uses the GitHub CLI: it commits the files, pushes them to the `wortschatz` repository and makes sure GitHub Pages is on.
+The script uses the GitHub CLI: it commits the files, pushes them to the `Wortfang` repository (it also picks up edits made on github.com) and makes sure GitHub Pages is on.
 
 **When you change `index.html`,** also bump `VERSION` in `sw.js` so phones pick up the new version. The app updates the next time it's opened online.
 
 ## Optional: Claude lookup (off by default)
 
-The app contains an optional "Ask Claude" lookup for tricky words, which uses your own Anthropic API key. It's hidden. To turn it on, set `const CLAUDE_ENABLED = true;` in `index.html`.
+The app contains an optional "Ask Claude" lookup, offered when the dictionary has no match. It uses your own Anthropic API key and is hidden. To turn it on, set `const CLAUDE_ENABLED = true;` in `index.html`.
 
 The key is kept in the browser's storage. Only turn this on once the app lives on its own domain (see the notes below).
 
@@ -73,7 +74,7 @@ The key is kept in the browser's storage. Only turn this on once the app lives o
   - Moving it changes where the data is stored, so users would need to Export → Import once.
 - **German legal requirements:** a publicly promoted site needs an Impressum (name, address and contact, per § 18 MStV). A short privacy note is also sensible.
 - **Commercial use:** GitHub Pages doesn't allow commercial use, so no ads or paid features.
-- **Storage names:** internal names still use `wortschatz` (the IndexedDB database, `wz.` settings keys, the repository name). Renaming them would hide existing users' saved words.
+- **Storage names:** internal names still use `wortschatz` (the IndexedDB database, `wz.` settings keys). Renaming them would hide existing users' saved words.
 
 ## Saved-word format (schema v2)
 

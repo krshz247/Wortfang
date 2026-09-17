@@ -1,14 +1,14 @@
 {
   "name": "Wortfang",
   "short_name": "Wortfang",
-  "description": "Catch German words as you meet them — articles, plurals and full conjugations, offline.",
+  "description": "Every German word you look up stays here — article, meaning and tenses, offline.",
   "lang": "en",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f7f4ee",
-  "theme_color": "#f7f4ee",
+  "background_color": "#EEF0EA",
+  "theme_color": "#EEF0EA",
   "icons": [
     {
       "src": "icons/icon-192.png",
